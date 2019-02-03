@@ -1,11 +1,4 @@
-# CUSTOM COWSAY
-A fun talking cow generator with Create-React-App and Express.
-
-This repo is an example of how to connect an Express backend with React, and subsequently deploying to Heroku.
-
-See the tutorial: [How to deploy a create-react-app with an Express backend to Heroku](https://medium.com/@chloechong.us/how-to-deploy-a-create-react-app-with-an-express-backend-to-heroku-32decfee6d18)
-
-See the deployed site: [Custom Cowsay](https://crae-example.herokuapp.com/)
+# Paperday Verification App 
 
 ## Deploying to Heroku
 

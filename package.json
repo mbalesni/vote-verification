@@ -1,7 +1,7 @@
 {
-  "name": "crae-example",
+  "name": "pday-verification",
   "version": "1.0.0",
-  "description": "Create-react-app with Express",
+  "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
