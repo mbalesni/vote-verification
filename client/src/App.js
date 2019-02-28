@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import QrReader from 'react-qr-reader'
 import { BeatLoader } from 'react-spinners'
 import NodeRSA from 'node-rsa'
-import constants from 'constants'
 import PUBLIC_KEY1 from './public-key1'
 import PUBLIC_KEY2 from './public-key2'
 import successIcon from './img/success-icon.png'
@@ -69,17 +68,17 @@ export default class App extends Component {
             />
           }
 
+          <BeatLoader
+            className="spinner"
+            size={15}
+            margin="4px"
+            loading={loading}
+            color="#1971c2"
+          />
+
           {verificationResult &&
             <>
               <div className="result">
-                <BeatLoader
-                  className="spinner"
-                  size={15}
-                  margin="4px"
-                  loading={loading}
-                  color="#1971c2"
-                />
-
                 <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                   <img src={successIcon} alt="success icon" />
                   <span>{verificationResult.value}</span>
@@ -104,8 +103,15 @@ export default class App extends Component {
   getCandidates() {
     axios.get('/get_candidates')
       .then(res => {
-        console.log(res.data)
-        this.candidates = res.data
+        if (res.data) this.candidates = res.data
+        else {
+          alert('Error getting candidates')
+        }
+      })
+      .catch(err => {
+        alert('Error getting candidates')
+        console.warn(err)
+
       })
   }
 
@@ -160,7 +166,7 @@ export default class App extends Component {
       alert('Unrecognized choice')
     }
 
-    this.setState({ verificationResult })
+    this.setState({ verificationResult, loading: false })
 
     console.log(verificationResult)
 
@@ -172,7 +178,7 @@ export default class App extends Component {
 
   handleScan = (verificationQr) => {
     if (verificationQr) {
-      this.setState({ loading: false, scanned: true }, () => {
+      this.setState({ loading: true, scanned: true }, () => {
         const { number, order, salt } = this.parseQR(verificationQr, VER_QR_SEPARATOR)
         this.checkVoteByBallotNum(number, order, salt)
       })

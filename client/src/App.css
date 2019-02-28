@@ -30,6 +30,12 @@ p, section {
   font-size: 20px;
 }
 
+.qr-not-found {
+  color: #9D2F2D;
+  padding-bottom: 3rem;
+
+}
+
 .page-content {
   height: 100%;
   padding-top: 1rem;

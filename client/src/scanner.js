@@ -29,24 +29,36 @@ export default class Scanner extends React.Component {
     }
 
     openImageDialog = () => {
-        this.refs.qrReader.openImageDialog()
+        this.setState({ legacy: true }, () => {
+            this.refs.qrReader.openImageDialog()
+        })
+    }
+
+    handleScan = (result) => {
+        console.log('result', result)
+        if (this.state.legacy && !result) {
+            // not found QR in loaded image
+            return this.setState({ qrNotFound: true })
+        }
+        this.props.handleScan(result)
     }
 
 
     render() {
-        const { legacy } = this.state
+        const { legacy, qrNotFound } = this.state
 
         const instructionMessage = legacy ? 'Завантаж фото перевірочного QR коду.' : 'Піднеси QR код з відривної частини свого бюлетеня.'
 
-        let classes = legacy ? 'scanner legacy' : 'scanner'
+        let scannerClasses = legacy ? 'scanner legacy' : 'scanner'
 
 
         return (
-            <>
+            <div className="scanner-wrapper">
                 <p className="instructions">{instructionMessage}</p>
-                <div className={classes}>
+                {qrNotFound && <p className="qr-not-found">Не знайдено QR. Спробуй завантажити інше фото.</p>}
+                <div className={scannerClasses}>
                     <QrReader
-                        onScan={this.props.handleScan}
+                        onScan={this.handleScan}
                         onError={this.props.handleError}
                         showViewFinder={true}
                         legacyMode={legacy}
@@ -54,14 +66,15 @@ export default class Scanner extends React.Component {
                         ref="qrReader"
                     />
                 </div>
-                {
-                    legacy &&
+                <div style={{display: 'flex', justifyContent:'center', alignItems: 'center', marginTop: '1rem'}}>
+                    {!legacy && <span style={{opacity: '0.6', marginRight: '1rem'}}>Або </span>}
                     <button className="btn-primary" onClick={this.openImageDialog}>
                         <i className="fas fa-image" style={{ marginRight: '.5rem' }}></i>
                         Завантажити QR
                     </button>
-                }
-            </>
+                </div>
+
+            </div>
         )
     }
 
