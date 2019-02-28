@@ -1,60 +1,69 @@
-import React, { Component } from 'react';
+import React, { Component } from 'react'
 import QrReader from 'react-qr-reader'
 import { BeatLoader } from 'react-spinners'
 import NodeRSA from 'node-rsa'
 import constants from 'constants'
-import PUBLIC_KEY from './public-key'
+import PUBLIC_KEY1 from './public-key1'
+import PUBLIC_KEY2 from './public-key2'
+import successIcon from './img/success-icon.png'
 import Scanner from './scanner'
 import axios from 'axios'
 
-import './App.css';
+import './App.css'
 
+console.log(successIcon)
+console.log(process.env)
 
-// left side QR == b64encoded plaintext of `order` + `salt` + `ballotNum`
-// WydDIycsICdQeXRob24nLCAnSmF2YScsICdHbycsICdKYXZhU2NyaXB0J10=:abmZbRQMd/ubbNvZH3SLELVyRl/n6OU7KXCxWJau2O8=:MTIzNDU2Nzg=
-
-// encrypted `order` + `salt`
-// smlTn8zB2tqvIeQqK7oGTrHzfYxSNZ5snk5Z+pdOyjG50upfKWA/1R7KAK4l+PsehYI/RxNzYPgLthc7K9DM+HYD6oKlJ8XllI7OG/STtpNUWrLEfzvO38sw2iJHIin+PwNk5GkLcMl4rDI7rXUySvXUbrgwTsIxO1RcAwncdsQ=
-
-// right side QR == encrypted(`order` + `salt`) + ballotNum
-// smlTn8zB2tqvIeQqK7oGTrHzfYxSNZ5snk5Z+pdOyjG50upfKWA/1R7KAK4l+PsehYI/RxNzYPgLthc7K9DM+HYD6oKlJ8XllI7OG/STtpNUWrLEfzvO38sw2iJHIin+PwNk5GkLcMl4rDI7rXUySvXUbrgwTsIxO1RcAwncdsQ=:MTIzNDU2Nzg=
-
-// doubleEnvelope == encrypted(`choice` + encrypted(`order` + `salt`))
-// where `choice` + encrypted(`order` + `salt`) == eyJjaG9pY2UiOjF9:VUdsNFRnWTd3WTZwaEIwNHoxVStJVytia2tBNWwxY1hJeWtESklVbEZaWCtkVzBMeGlqTjdGdWhUN3dQMHVwUkFSbjNWUjZ0c0hSUEZHOUxkT3lLVUErNVMzZkhBbVpORmZUbldTdTQvczkwWmpxK2tXK1psTjc1U2t1aEh2Ujd6ZmNXRW1GeGJpM1EybHJFcW5JT0h5ZVRkZjM0bGxobDB0WWM0bXhYeW04PQ==
-//
-// KdVCUs2E4R6n3hIWLNhxI5K8gjKgNl7/1Q4DeV6F1L/SFc87btDjTNZdU3VWXMlEP/PSRcUFrT0dK39x6FomykcMTomS7jNww67CTrS78uGij3hSq3FF9rNJs+KwL4hivsG9AEF84GT4ya8MGDt0AyWr7NroJShxGoTRa+Nw7+WHqcoJDOXsiOdmUpSyVtEydHLJzX9PHJhxWxpq7PyTCx5LOiRyCfA2HBU3RzoKgcVEAKSKjTu5YnJq1d8T5xmKvcVpJVrSUT78vCfeqAp4LufA1be0i4qatl6grpywaf11lf4tqfONt09snY/8QP400BRQc0R2dUz6YiSxgZD6OA==
-
-
-// example QR
-// number 00112233-4455-6677-8899-aabbccddeeff
-// b64(order) [3,1,2]
-// hex(salt) 48656C6C6F20576F726C6421
-
+const VER_QR_SEPARATOR = ":",
+  ENCORDER_SEPARATOR = "//",
+  DENVELOPE_SEPARATOR = ":",
+  STATUSES = {
+    "-3": {
+      displayValue: "Дублікат",
+      value: "duplicate"
+    },
+    "-2": {
+      displayValue: "Не просканований",
+      value: "unscanned"
+    },
+    "-1": {
+      displayValue: "Відкликаний",
+      value: "revoked"
+    },
+    "0": {
+      displayValue: "Зіпсований",
+      value: "spoilt"
+    }
+  }
 export default class App extends Component {
   state = {
     scanning: false,
-    choice: null,
+    verificationResult: null,
     loading: false
   }
 
   componentDidMount() {
-    // if (navigator.getUserMedia) {
-    //   navigator.getUserMedia(
-    //     {
-    //       video: true
-    //     },
-    //     function (localMediaStream) { },
-    //     function (err) {
-    //       alert('The following error occurred when trying to access the camera: ' + err);
-    //     }
-    //   );
-    // } else {
-    //   alert('Sorry, browser does not support camera access');
-    // }
+    // check camera access
+    if (navigator.getUserMedia) {
+      navigator.getUserMedia(
+        {
+          video: true
+        },
+        function (localMediaStream) { },
+        function (err) {
+          alert('The following error occurred when trying to access the camera: ' + err)
+        }
+      )
+    } else {
+      alert('Sorry, browser does not support camera access')
+    }
+
+    // get candidates
+    this.getCandidates()
   }
 
   render() {
-    const { choice, loading, scanning, scanned } = this.state
+    const { verificationResult, loading, scanning, scanned } = this.state
 
     return (
       <div className="App">
@@ -67,36 +76,51 @@ export default class App extends Component {
             />
           }
 
-
-          {!scanning && !choice &&
+          {!scanning && !verificationResult &&
             <>
               <p className="instructions">Тут ти можеш перевірити правильність зарахування свого голосу на минулих виборах.<br /> Підготов відривну частину свого бюлетеня та відскануй її. </p>
               <button className="btn-primary" onClick={this.onScanStart.bind(this)}>Перевірити голос</button>
             </>
-
           }
 
-          <div className="result">
-            <BeatLoader
-              className="spinner"
-              size={15}
-              margin="4px"
-              loading={loading}
-              color="#1971c2"
-            />
-            {choice &&
-              <p>{choice}</p>
-            }
-          </div>
+          {verificationResult &&
+            <>
+              <div className="result">
+                <BeatLoader
+                  className="spinner"
+                  size={15}
+                  margin="4px"
+                  loading={loading}
+                  color="#1971c2"
+                />
+
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                  <img src={successIcon} alt="success icon" />
+                  <span>{verificationResult.value}</span>
+                </div>
+              </div>
+              <div className="result-message-box">
+                <p>Дякуємо, що взяв участь у виборах ;)</p>
+              </div>
+            </>
+          }
         </div>
 
 
         <footer>
-          <i className="fas fa-user-secret"></i>
+          {/* <i className="fas fa-user-secret"></i> */}
         </footer>
 
       </div>
-    );
+    )
+  }
+
+  getCandidates() {
+    axios.get('/get_candidates')
+      .then(res => {
+        console.log(res.data)
+        this.candidates = res.data
+      })
   }
 
   onScanStart() {
@@ -115,55 +139,56 @@ export default class App extends Component {
   }
 
   checkVoteByBallotNum = async (ballotNum, order, salt) => {
-    // let doubleEnvelopeFromServer = "KdVCUs2E4R6n3hIWLNhxI5K8gjKgNl7/1Q4DeV6F1L/SFc87btDjTNZdU3VWXMlEP/PSRcUFrT0dK39x6FomykcMTomS7jNww67CTrS78uGij3hSq3FF9rNJs+KwL4hivsG9AEF84GT4ya8MGDt0AyWr7NroJShxGoTRa+Nw7+WHqcoJDOXsiOdmUpSyVtEydHLJzX9PHJhxWxpq7PyTCx5LOiRyCfA2HBU3RzoKgcVEAKSKjTu5YnJq1d8T5xmKvcVpJVrSUT78vCfeqAp4LufA1be0i4qatl6grpywaf11lf4tqfONt09snY/8QP400BRQc0R2dUz6YiSxgZD6OA=="
-    console.log('ballot number', ballotNum)
-    console.log('order', atob(order))
-    console.log('salt', atob(salt))
-
+    // get double envelope from backend
+    let D_ENVELOPE
     try {
-      const doubleEnvelope = await this.getBallot(ballotNum)
-      console.log('double envelope from server:', doubleEnvelope)
+      D_ENVELOPE = await this.getBallot(ballotNum)
+    } catch (err) { console.error(err) }
 
-    } catch (err) {
-      console.error(err)
+    // create encOrder
+    let ENC_ORDER = this.rsaEncrypt(
+      order + ENCORDER_SEPARATOR + salt,
+      PUBLIC_KEY1,
+      "base64"
+    )
+
+    const CHOICE_OPTIONS = [...Object.keys(STATUSES), ...Object.keys(this.candidates)]
+
+    const choiceValue = this.bruteforceChoice(
+      D_ENVELOPE,
+      ENC_ORDER,
+      CHOICE_OPTIONS,
+      PUBLIC_KEY2
+    )
+
+    let verificationResult = {}
+
+    if (this.candidates[choiceValue]) {
+      verificationResult.type = 'candidate'
+      verificationResult.value = this.candidates[choiceValue]
+    } else if (STATUSES[choiceValue]) {
+      verificationResult.type = 'status'
+      verificationResult.value = STATUSES[choiceValue]
+    } else {
+      // FIXME: handle unrecognized
+      alert('Unrecognized choice')
     }
 
+    this.setState({ verificationResult })
 
-    // let possibleOptionsPlaintext = []
+    console.log(verificationResult)
 
-    // let encOrder = await rsaEncrypt(atob(order), salt)
-
-    // for (let i = 0; i < 5; i++) {
-    //   let choice = JSON.stringify({ choice: i })
-    //   choice = btoa(choice)
-    //   possibleOptionsPlaintext.push(choice + ':' + encOrder)
-
-    // }
-    // console.log(possibleOptionsPlaintext)
-
-    // let doubleEnvelopes = possibleOptionsPlaintext.map(this.encryptOption)
-
-    // let result = await Promise.all(doubleEnvelopes)
-
-    // console.log(result)
-
-    // setTimeout(() => {
-    //   let choice = <>Цей голос було віддано за <br /> <span id="choice">Голобородько І. С.</span></>
-    //   this.setState({ choice, loading: false })
-    // }, 2000)
   }
 
   encryptOption = async (option) => {
-    return rsaEncrypt(option)
+    return this.rsaEncrypt(option)
   }
 
-  handleScan = (result) => {
-    if (result) {
+  handleScan = (verificationQr) => {
+    if (verificationQr) {
       this.setState({ loading: false, scanned: true }, () => {
-        let ballotNum = result.split(':')[0]
-        let orderB64 = result.split(':')[1]
-        let saltB64 = result.split(':')[2]
-        this.checkVoteByBallotNum(ballotNum, orderB64, saltB64)
+        const { number, order, salt } = this.parseQR(verificationQr, VER_QR_SEPARATOR)
+        this.checkVoteByBallotNum(number, order, salt)
       })
     }
 
@@ -173,36 +198,47 @@ export default class App extends Component {
     console.warn(error)
   }
 
-
-}
-
-async function rsaEncrypt(data, salt) {
-
-  // to base64
-  // data = btoa(data)
-
-  // import and set public key
-  // const key = new NodeRSA(PUBLIC_KEY, 'public', {'encryptionScheme': 'pkcs1'})
-  const key = new NodeRSA()
-  key.setOptions({
-    encryptionScheme: {
-      scheme: 'pkcs1',
-      padding: constants.RSA_NO_PADDING,
-      toString: function () {
-        return 'pkcs1-nopadding';
+  rsaEncrypt(data, key, encoding) {
+    const k = new NodeRSA()
+    k.importKey(key, "public")
+    k.setOptions({
+      encryptionScheme: {
+        scheme: "pkcs1",
+        padding: 3, // constants.RSA_NO_PADDING
+        toString: function () {
+          return "pkcs1-nopadding"
+        }
       }
+    })
+    return k.encrypt(data, encoding)
+  }
+
+  bruteforceChoice(realEnvelope, encOrder, choices, key) {
+    let len = choices.length
+    for (let i = 0; i < len; i++) {
+      let choiceGuess = choices[i]
+      let envelopeGuess = this.createDoubleEnvelope(encOrder, choiceGuess, key)
+      if (envelopeGuess === realEnvelope) return choiceGuess
     }
-  })
-  let keydata = PUBLIC_KEY
-  key.importKey(keydata, 'public')
+  }
 
+  createDoubleEnvelope(encOrder, choice, key) {
+    return this.rsaEncrypt(btoa(choice) + DENVELOPE_SEPARATOR + encOrder, key, "base64")
+  }
 
-  console.log('message:\n', data)
-  console.log()
+  parseQR(content, separator) {
+    try {
+      const dataArr = content.split(separator)
+      const number = dataArr[0]
+      const order = atob(dataArr[1])
+      const salt = atob(dataArr[2])
+      return { number, order, salt }
+    } catch (err) {
+      console.warn(err)
+      throw new Error(err.message)
+    }
+  }
 
-  // encrypt order+salt
-  let encrypted = key.encrypt(data, 'base64')
-
-  return encrypted
 
 }
+
