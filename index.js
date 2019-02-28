@@ -3,6 +3,7 @@ const cors = require('cors')
 const path = require('path')
 
 const ballots = require('./votes.json')
+const candidates = require('./candidates.json')
 
 // Create the server
 const app = express()
@@ -22,6 +23,14 @@ app.get('/get_ballot/:number', cors(), async (req, res, next) => {
       })
     }
 
+  } catch (err) {
+    next(err)
+  }
+})
+
+app.get('/get_candidates', cors(), async (req, res, next) => {
+  try {
+    res.json(candidates)
   } catch (err) {
     next(err)
   }
