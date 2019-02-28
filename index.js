@@ -7,7 +7,7 @@ const candidates = require('./candidates.json')
 
 const DEBUG = process.env.NODE_ENV !== 'production'
 
-const DOMAIN_WHITELIST = DEBUG ? '*' : ['pday-verification.herokuapp.com', 'http://pday-verification.herokuapp.com', 'https://pday-verification.herokuapp.com']
+const DOMAIN_WHITELIST = DEBUG ? '*' : 'https://pday-verification.herokuapp.com'
 
 const corsOptions = {
   // origin: (origin, callback) => {
