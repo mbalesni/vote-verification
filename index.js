@@ -5,7 +5,9 @@ const path = require('path')
 const ballots = require('./votes.json')
 const candidates = require('./candidates.json')
 
-const DOMAIN_WHITELIST = ['pday-verification.herokuapp.com', 'http://pday-verification.herokuapp.com', 'https://pday-verification.herokuapp.com']
+const DEBUG = process.env.NODE_ENV !== 'production'
+
+const DOMAIN_WHITELIST = DEBUG ? '*' : ['pday-verification.herokuapp.com', 'http://pday-verification.herokuapp.com', 'https://pday-verification.herokuapp.com']
 
 const corsOptions = {
   // origin: (origin, callback) => {
