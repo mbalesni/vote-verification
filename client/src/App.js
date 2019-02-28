@@ -6,6 +6,7 @@ import constants from 'constants'
 import PUBLIC_KEY1 from './public-key1'
 import PUBLIC_KEY2 from './public-key2'
 import successIcon from './img/success-icon.png'
+import CVKIcon from './img/cvk-logo.png'
 import Scanner from './scanner'
 import axios from 'axios'
 
@@ -43,22 +44,6 @@ export default class App extends Component {
   }
 
   componentDidMount() {
-    // check camera access
-    if (navigator.getUserMedia) {
-      navigator.getUserMedia(
-        {
-          video: true
-        },
-        function (localMediaStream) { },
-        function (err) {
-          alert('The following error occurred when trying to access the camera: ' + err)
-        }
-      )
-    } else {
-      alert('Sorry, browser does not support camera access')
-    }
-
-    // get candidates
     this.getCandidates()
   }
 
@@ -69,18 +54,19 @@ export default class App extends Component {
       <div className="App">
         <div className="page-content">
 
+          {!scanning && !verificationResult &&
+            <>
+              <img className="hero-logo" src={CVKIcon} alt="Логотип ЦВК студентів КНУ" />
+              <p className="instructions">Тут ти можеш перевірити правильність зарахування свого голосу на минулих виборах.<br /> Підготов відривну частину свого бюлетеня та відскануй її. </p>
+              <button className="btn-primary" onClick={this.onScanStart.bind(this)}>Перевірити голос</button>
+            </>
+          }
+
           {scanning && !scanned &&
             <Scanner
               handleScan={this.handleScan}
               handleError={this.handleError}
             />
-          }
-
-          {!scanning && !verificationResult &&
-            <>
-              <p className="instructions">Тут ти можеш перевірити правильність зарахування свого голосу на минулих виборах.<br /> Підготов відривну частину свого бюлетеня та відскануй її. </p>
-              <button className="btn-primary" onClick={this.onScanStart.bind(this)}>Перевірити голос</button>
-            </>
           }
 
           {verificationResult &&

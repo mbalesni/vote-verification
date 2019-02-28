@@ -1,5 +1,5 @@
 {
-  "name": "qr",
+  "name": "Verification App",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -8,9 +8,9 @@
     "gh-pages": "^2.0.1",
     "node-rsa": "^1.0.2",
     "random-bytes": "^1.0.0",
-    "react": "^16.7.0",
-    "react-dom": "^16.7.0",
-    "react-qr-reader": "^2.1.1",
+    "react": "^16.8.0",
+    "react-dom": "^16.8.0",
+    "react-qr-reader": "^2.2.1",
     "react-scripts": "2.1.2",
     "react-spinners": "^0.4.8"
   },
