@@ -5,8 +5,15 @@ const path = require('path')
 const ballots = require('./votes.json')
 const candidates = require('./candidates.json')
 
+const env = process.env.NODE_ENV || 'development'
+
 // Create the server
 const app = express()
+
+
+if (env === 'production') {
+  app.use(forceSsl);
+}
 
 // Serve static files from the React frontend app
 app.use(express.static(path.join(__dirname, 'client/build')))
@@ -40,6 +47,13 @@ app.get('/get_candidates', async (req, res, next) => {
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname + '/client/build/index.html'))
 })
+
+const forceSsl = (req, res, next) => {
+  if (req.headers['x-forwarded-proto'] !== 'https') {
+    return res.redirect(['https://', req.get('Host'), req.url].join(''))
+  }
+  return next()
+}
 
 // Choose the port and start the server
 const PORT = process.env.PORT || 5000
