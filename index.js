@@ -10,6 +10,12 @@ const env = process.env.NODE_ENV || 'development'
 // Create the server
 const app = express()
 
+const forceSsl = (req, res, next) => {
+  if (req.headers['x-forwarded-proto'] !== 'https') {
+    return res.redirect(['https://', req.get('Host'), req.url].join(''))
+  }
+  return next()
+}
 
 if (env === 'production') {
   app.use(forceSsl);
@@ -47,13 +53,6 @@ app.get('/get_candidates', async (req, res, next) => {
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname + '/client/build/index.html'))
 })
-
-const forceSsl = (req, res, next) => {
-  if (req.headers['x-forwarded-proto'] !== 'https') {
-    return res.redirect(['https://', req.get('Host'), req.url].join(''))
-  }
-  return next()
-}
 
 // Choose the port and start the server
 const PORT = process.env.PORT || 5000
