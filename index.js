@@ -5,22 +5,6 @@ const path = require('path')
 const ballots = require('./votes.json')
 const candidates = require('./candidates.json')
 
-const DEBUG = process.env.NODE_ENV !== 'production'
-
-const DOMAIN_WHITELIST = DEBUG ? '*' : 'https://pday-verification.herokuapp.com'
-
-const corsOptions = {
-  // origin: (origin, callback) => {
-  //   if (DOMAIN_WHITELIST.indexOf(origin) > -1) {
-  //     callback(null, true)
-  //   } else {
-  //     callback(new Error('Not allowed by CORS'))
-  //   }
-  // }
-  origin: DOMAIN_WHITELIST,
-  optionsSuccessStatus: 200
-}
-
 // Create the server
 const app = express()
 
@@ -28,7 +12,7 @@ const app = express()
 app.use(express.static(path.join(__dirname, 'client/build')))
 
 // Serve our api route /cow that returns a custom talking text cow
-app.get('/get_ballot/:number', cors(corsOptions), async (req, res, next) => {
+app.get('/get_ballot/:number', async (req, res, next) => {
   try {
     const number = req.params.number
     if (ballots[number]) {
@@ -44,7 +28,7 @@ app.get('/get_ballot/:number', cors(corsOptions), async (req, res, next) => {
   }
 })
 
-app.get('/get_candidates', cors(corsOptions), async (req, res, next) => {
+app.get('/get_candidates', async (req, res, next) => {
   try {
     res.json(candidates)
   } catch (err) {
