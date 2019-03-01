@@ -7,15 +7,13 @@ import PUBLIC_KEY2 from './public-key2'
 import successIcon from './img/success-icon.png'
 import CVKIcon from './img/cvk-logo.png'
 import Scanner from './scanner'
+import ErrorMessage from './error-message'
 import axios from 'axios'
 
 import './App.css'
 
-console.log(successIcon)
-console.log(process.env)
 
-const VER_QR_SEPARATOR = ":",
-  ENCORDER_SEPARATOR = "//",
+const ENCORDER_SEPARATOR = "//",
   DENVELOPE_SEPARATOR = ":",
   STATUSES = {
     "-3": {
@@ -35,6 +33,12 @@ const VER_QR_SEPARATOR = ":",
       value: "spoilt"
     }
   }
+
+const initialState = {
+  scanning: false,
+  verificationResult: null,
+  loading: false
+}
 export default class App extends Component {
   state = {
     scanning: false,
@@ -47,7 +51,9 @@ export default class App extends Component {
   }
 
   render() {
-    const { verificationResult, loading, scanning, scanned } = this.state
+    const { verificationResult, loading, scanning, scanned, error } = this.state
+
+    const errorMessage = error && this.getErrorText(error)
 
     return (
       <div className="App">
@@ -56,7 +62,7 @@ export default class App extends Component {
           {!scanning && !verificationResult &&
             <>
               <img className="hero-logo" src={CVKIcon} alt="Логотип ЦВК студентів КНУ" />
-              <p className="instructions">Тут ти можеш перевірити правильність зарахування свого голосу на минулих виборах.<br /> Підготов відривну частину свого бюлетеня та відскануй її. </p>
+              <p className="instructions">Тут ти можеш перевірити правильність зарахування свого голосу на минулих виборах.<br /><br /> Підготов відривну частину свого бюлетеня та відскануй її. </p>
               <button className="btn-primary" onClick={this.onScanStart.bind(this)}>Перевірити голос</button>
             </>
           }
@@ -75,6 +81,8 @@ export default class App extends Component {
             loading={loading}
             color="#1971c2"
           />
+
+          {error && <ErrorMessage message={errorMessage} />}
 
           {verificationResult &&
             <>
@@ -163,7 +171,9 @@ export default class App extends Component {
       verificationResult.value = STATUSES[choiceValue]
     } else {
       // FIXME: handle unrecognized
-      alert('Unrecognized choice')
+      // alert('Unrecognized choice')
+      this.setState({ error: 'unrecognizedChoice', loading: false, scanned: false })
+      return
     }
 
     this.setState({ verificationResult, loading: false })
@@ -172,18 +182,27 @@ export default class App extends Component {
 
   }
 
+  goToStart() {
+    this.setState(initialState)
+  }
+
+  getErrorText(errorName) {
+    switch (errorName) {
+        case 'unrecognizedChoice':
+            return 'Не вдалося перевірити твій голос. Перевір, що завантажуєш вірний QR код.'
+        default:
+            return 'Сталася помилка. Спробуй завантажити інше фото.'
+    }
+}
+
   encryptOption = async (option) => {
     return this.rsaEncrypt(option)
   }
 
-  handleScan = (verificationQr) => {
-    if (verificationQr) {
-      this.setState({ loading: true, scanned: true }, () => {
-        const { number, order, salt } = this.parseQR(verificationQr, VER_QR_SEPARATOR)
-        this.checkVoteByBallotNum(number, order, salt)
-      })
-    }
-
+  handleScan = (number, order, salt) => {
+    this.setState({ loading: true, scanned: true }, () => {
+      this.checkVoteByBallotNum(number, order, salt)
+    })
   }
 
   handleError = (error) => {
@@ -217,20 +236,6 @@ export default class App extends Component {
   createDoubleEnvelope(encOrder, choice, key) {
     return this.rsaEncrypt(btoa(choice) + DENVELOPE_SEPARATOR + encOrder, key, "base64")
   }
-
-  parseQR(content, separator) {
-    try {
-      const dataArr = content.split(separator)
-      const number = dataArr[0]
-      const order = atob(dataArr[1])
-      const salt = atob(dataArr[2])
-      return { number, order, salt }
-    } catch (err) {
-      console.warn(err)
-      throw new Error(err.message)
-    }
-  }
-
 
 }
 

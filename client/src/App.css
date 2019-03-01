@@ -3,6 +3,10 @@ html, body {
   font-family: Roboto;
 }
 
+button {
+  user-select: none;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -25,15 +29,16 @@ p, section {
 }
 
 .instructions {
+  max-width: 600px;
+  margin: 0 auto;
   opacity: .6;
   padding: 3rem 1.5rem;
   font-size: 20px;
 }
 
-.qr-not-found {
+.error-message {
   color: #9D2F2D;
-  padding-bottom: 3rem;
-
+  padding: 1rem 1.5rem 3rem;
 }
 
 .page-content {
@@ -43,7 +48,7 @@ p, section {
 
 .hero-logo {
   width: 50%;
-  max-width:400px;
+  max-width: 400px;
 }
 
 .btn-primary {
@@ -96,7 +101,7 @@ i.fa-user-secret {
   border-top-right-radius: 16px;
   border-top-left-radius: 16px;
   padding: 2rem 1rem;
-  box-shadow: 0px -2px 5px rgba(0,0,0,.1);
+  box-shadow: 0px -2px 5px rgba(0, 0, 0, .1);
 }
 
 .spinner {
@@ -110,6 +115,7 @@ footer {
 .scanner.legacy {
   width: 0;
 }
+
 .scanner.legacy img {
   display: none !important;
 }
@@ -119,7 +125,6 @@ footer {
     width: 400px;
     margin: 0 auto;
   }
-  
   .btn-primary {
     border-radius: 50px;
     font-size: 16px;
