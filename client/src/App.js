@@ -85,7 +85,7 @@ export default class App extends Component {
                 </div>
               </div>
               <div className="result-message-box">
-                <p>Дякуємо, що взяв участь у виборах ;)</p>
+                <p>Дякуємо, що скористався сервісом ЦВК ;)</p>
               </div>
             </>
           }
