@@ -47,8 +47,8 @@ p, section {
 }
 
 .hero-logo {
-  width: 50%;
-  max-width: 400px;
+  height: 35%;
+  max-height: 400px;
 }
 
 .btn-primary {
