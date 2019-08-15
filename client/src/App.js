@@ -50,11 +50,12 @@ function stepClassFromInt(int) {
 }
 
 const initialState = {
-  scanning: false,
-  verificationResult: null,
+  gotResult: false,
   loading: false,
+  scanning: false,
   started: false,
   step: 0,
+  verificationResult: null,
 }
 export default class App extends Component {
   state = { ...initialState }
@@ -126,14 +127,6 @@ export default class App extends Component {
               prevStep={this.prevStep.bind(this)}
             />
           }
-
-          <BeatLoader
-            className="spinner"
-            size={15}
-            margin="4px"
-            loading={loading}
-            color="#1971c2"
-          />
 
           {error && <ErrorMessage message={errorMessage} />}
 
@@ -223,7 +216,9 @@ export default class App extends Component {
       return
     }
 
-    this.setState({ verificationResult, loading: false })
+    alert("Твій голос зараховано за: " + verificationResult.value)
+    // this.setState({ verificationResult, loading: false })
+    this.setState({ loading: false })
 
     console.log(verificationResult)
 

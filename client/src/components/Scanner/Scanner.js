@@ -36,6 +36,7 @@ export default class Scanner extends React.Component {
     }
 
     handleScan = (result) => {
+        if (this.state.haveResult) return
         console.log('result', result)
         if (this.state.legacy && !result) {
             // not found QR in loaded image
@@ -43,7 +44,10 @@ export default class Scanner extends React.Component {
         }
         if (result) {
             const { number, order, salt, error } = this.parseQR(result, VER_QR_SEPARATOR)
-            if (!error) this.props.handleScan(number, order, salt)
+            if (!error) {
+                this.props.handleScan(number, order, salt)
+                this.setState({ haveResult: true })
+            }
         }
     }
 
