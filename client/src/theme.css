@@ -1,0 +1,121 @@
+:root {
+    --light-grey:       #F5F5F5;
+    --grey:             #C4C4C4;
+    --dark-grey:        #545454;
+    --turquoise:        #5DBBC1;
+    --turquoise-opaque: #5DBBC133; /* 20% opaque */
+    --white:            #fff;
+    --white-opaque:     #ffffff33; /* 20% opaque */
+    --font-size-regular:  400;
+    --font-size-medium:   500;
+    --font-size-semibold: 600;
+    --font-size-bold:     700
+}
+
+body {
+    color: var(--dark-grey);
+}
+
+h1 {
+    font-weight: var(--font-size-bold);
+    font-size: 21px;
+    line-height: 50px;
+}
+
+p {
+    font-size: 16px;
+}
+
+p.size-large {
+    font-size: 19px;
+}
+
+button {
+    align-items: center;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    font-size: 17px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: var(--font-size-semibold);
+    padding: 0px 30px;
+    height: 50px;
+}
+
+button.secondary {
+    background-color: var(--white);
+    color: var(--dark-grey);
+}
+
+button.secondary.low-opacity {
+    background-color: var(--white-opaque);
+}
+
+button.primary {
+    background-color: var(--turquoise);
+    color: var(--white);
+}
+
+button.primary.low-opacity {
+    background-color: var(--turquoise-opaque);
+}
+
+button.round {
+    width: 50px;
+    height: 50px;
+    padding: 0;
+}
+
+.btn-large {
+    min-height: 66px;
+    border-radius: 30px;
+    font-weight: var(--font-size-semibold);
+    font-size: 20px;
+    line-height: 26px;
+    max-width: 320px;
+    /* padding: 6px 12px; */
+}
+
+.weight-regular {
+    font-weight: var(--font-size-regular);
+}
+
+.weight-medium {
+    font-weight: var(--font-size-medium);
+}
+
+.weight-semi-bold {
+    font-weight: var(--font-size-semibold);
+}
+
+.weight-bold {
+    font-weight: var(--font-size-bold);
+}
+
+/* colors */
+
+.color-white {
+    color: var(--white);
+}
+
+.color-main {
+    color: var(--turquoise);
+}
+
+.color-grey {
+    color: var(--grey);
+}
+
+.color-darkgrey {
+    color: var(--dark-grey);
+}
+
+/* fonts */
+
+@media (max-width: 374px) {
+    p.size-large {
+        font-size: 16px;
+    }
+}

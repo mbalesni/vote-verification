@@ -1,6 +1,22 @@
+:root {
+  --transition: all .3s ease-in-out;
+}
+
 html, body {
   height: 100%;
   font-family: Roboto;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Montserrat', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  height: 100%;
 }
 
 button {
@@ -11,123 +27,126 @@ button {
   box-sizing: border-box;
 }
 
-p, section {
+h1, h2, h3, h4, h5, h6, p, section {
   margin: 0;
   padding: 0;
 }
 
 .App {
-  background-color: #f0f0f0;
+  background-color: #fff;
   text-align: center;
   width: 100%;
   height: 100%;
   font-size: 18px;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
 
-.instructions {
-  max-width: 600px;
-  margin: 0 auto;
-  opacity: .6;
-  padding: 3rem 1.5rem;
-  font-size: 20px;
-}
-
-.error-message {
-  color: #9D2F2D;
-  padding: 1rem 1.5rem 3rem;
-}
-
 .page-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   height: 100%;
   padding-top: 1rem;
+  overflow: hidden;
 }
 
-.hero-logo {
-  height: 35%;
-  max-height: 400px;
+.page-content .home-content, .page-content .home-content * {
+  transition: var(--transition);
 }
 
-.btn-primary {
-  background-color: #419ef0;
-  border: 0;
-  border-radius: 50px;
-  color: #fff;
-  font-size: 18px;
-  padding: 15px 25px;
-  cursor: pointer;
-  outline: none;
+.page-content .home-content img {
+  visibility: visible;
+  opacity: 1;
+  height: 175px;
 }
 
-.btn-primary:hover {
-  background-color: #2093f8;
+.page-content.started .home-content img {
+  visibility: hidden;
+  opacity: 0;
+  height: 0;
 }
 
-.btn-primary:active {
-  background-color: #1386eb;
+.page-content .home-content #start {
+  visibility: visible;
+  opacity: 1;
+  /* min-height: 66px; */
 }
 
-.scanner {
+.page-content.started .home-content #start {
+  visibility: hidden;
+  opacity: 0;
+  min-height: 0;
+  height: 0;
+}
+
+.page-content.started .home-content {
+  /* transform: translateY(calc(-406px / 3)); */
+  height: 140px;
+  /* flex-grow: 1; */
+}
+
+.page-content .gradient-circle {
+  background-image: url('./img/rounded-gradient.svg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: top center;
+  display: flex;
+  justify-content: center;
+  height: 0%;
+  padding-top: 0rem;
   width: 100%;
-  margin: 0 auto;
+  max-height: 550px;
+  transition: var(--transition);
 }
 
-i.fa-user-secret {
-  opacity: .6;
-  font-size: 30px;
-  padding: .5rem;
-}
-
-.result {
-  font-size: 24px;
-  padding: 2rem 1rem;
-  text-align: center;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.result img {
-  margin-right: .5rem;
-  height: 30px;
-}
-
-.result-message-box {
-  width: 100%;
+.page-content.started .gradient-circle {
+  padding-top: 3rem;
   height: 100%;
-  background-color: #fff;
-  border-top-right-radius: 16px;
-  border-top-left-radius: 16px;
-  padding: 2rem 1rem;
-  box-shadow: 0px -2px 5px rgba(0, 0, 0, .1);
 }
 
-.spinner {
+.gradient-circle--container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 1.5rem 1.5rem;
+}
+
+.qr-code-icon {
   margin: 1rem 0;
 }
 
-footer {
-  width: 100%;
+.controls {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
 }
 
-.scanner.legacy {
-  width: 0;
-}
-
-.scanner.legacy img {
-  display: none !important;
-}
-
-@media screen and (min-width: 450px) {
-  .scanner {
-    width: 400px;
-    margin: 0 auto;
+@media (max-width: 374px) {
+  .page-content {
+    padding-top: 0;
   }
-  .btn-primary {
-    border-radius: 50px;
-    font-size: 16px;
-    padding: 10px 25px;
+  .page-content.started {
+    padding-top: 1rem;
+  }
+  .page-content.started .home-content {
+    height: 100px;
+  }
+}
+
+@media (max-height: 460px) {
+  .page-content.started .gradient-circle {
+    padding-top: 2.5rem;
+  }
+  .qr-code-icon {
+    width: 60px;
+  }
+}
+
+@media (max-height: 600px) {
+  .qr-code-icon {
+    width: 100px;
   }
 }

@@ -1,3 +1,6 @@
 node_modules
 .prettierrc
 crae/
+server.crt
+server.key
+.env

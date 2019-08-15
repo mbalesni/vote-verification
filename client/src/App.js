@@ -1,17 +1,19 @@
 import React, { Component } from 'react'
-import QrReader from 'react-qr-reader'
 import { BeatLoader } from 'react-spinners'
 import NodeRSA from 'node-rsa'
-import PUBLIC_KEY1 from './public-key1'
-import PUBLIC_KEY2 from './public-key2'
+import PUBLIC_KEY1 from './keys/public-key1'
+import PUBLIC_KEY2 from './keys/public-key2'
 import successIcon from './img/success-icon.png'
-import CVKIcon from './img/cvk-logo.png'
-import Scanner from './scanner'
-import ErrorMessage from './error-message'
+import qrCodeIcon from './img/qr-code.svg'
+import arrowBackIcon from './img/arrow_back.svg'
+import verifiedIcon from './img/verified_user.svg'
+import Scanner from './components/Scanner/Scanner'
+import ErrorMessage from './components/ErrorMessage/ErrorMessage'
 import axios from 'axios'
 
 import './App.css'
-
+import './theme.css'
+import './screens/Home.css'
 
 const ENCORDER_SEPARATOR = "//",
   DENVELOPE_SEPARATOR = ":",
@@ -34,43 +36,94 @@ const ENCORDER_SEPARATOR = "//",
     }
   }
 
+function stepClassFromInt(int) {
+  switch(int) {
+    case 0:
+      return ''
+    case 1:
+      return 'started'
+    case 2:
+      return 'ready-to-scan'
+    default:
+      return ''
+  }
+}
+
 const initialState = {
   scanning: false,
   verificationResult: null,
-  loading: false
+  loading: false,
+  started: false,
+  step: 0,
 }
 export default class App extends Component {
-  state = {
-    scanning: false,
-    verificationResult: null,
-    loading: false
-  }
+  state = { ...initialState }
 
   componentDidMount() {
     this.getCandidates()
   }
 
+  start() {
+    this.setState({ step: 1, })
+  }
+
+  prevStep() {
+    this.setState((prevState) => ({ step: prevState.step - 1 }))
+  }
+
+  nextStep() {
+    this.setState((prevState) => ({ step: prevState.step + 1 }))
+  }
+
   render() {
-    const { verificationResult, loading, scanning, scanned, error } = this.state
+    const { verificationResult, loading, scanning, scanned, error, step } = this.state
 
     const errorMessage = error && this.getErrorText(error)
 
+    const stepClass = stepClassFromInt(step)
+
     return (
       <div className="App">
-        <div className="page-content">
+        <div className={'page-content ' + stepClass}>
 
-          {!scanning && !verificationResult &&
-            <>
-              <img className="hero-logo" src={CVKIcon} alt="Логотип ЦВК студентів КНУ" />
-              <p className="instructions">Тут ти можеш перевірити правильність зарахування свого голосу на минулих виборах.<br /><br /> Підготов відривну частину свого бюлетеня та відскануй її. </p>
-              <button className="btn-primary" onClick={this.onScanStart.bind(this)}>Перевірити голос</button>
-            </>
-          }
+          <div className="home-content">
+            <img alt="Verified Icon" src={verifiedIcon} />
+            <div className="text">
+              <h1 className="color-main">Перевір свій голос</h1>
+              <p className="color-darkgrey">на минулих універських виборах</p>
+            </div>
+            <button id="start" className="btn-large" onClick={this.start.bind(this)}>Перевірити</button>
+          </div>
 
-          {scanning && !scanned &&
+          <div className="gradient-circle">
+            <div className="gradient-circle--container">
+              <div>
+                <p className="size-large weight-medium color-white">
+                  Тобі знадобиться частина бюлетня з минулих виборів з зображенням <strong>QR коду</strong>
+                </p>
+                <img className="qr-code-icon" alt="QR code icon" src={qrCodeIcon} />
+                <p className="size-large weight-regular color-white">
+                  Перевірка голосу є <strong>анонімною</strong>
+                </p>
+              </div>
+              <div className="controls">
+                <button className="secondary low-opacity round" onClick={this.prevStep.bind(this)} >
+                  <img alt="Стрілка назад" src={arrowBackIcon} />
+                </button>
+                <button className="secondary" onClick={this.nextStep.bind(this)}>
+                  Почати
+                </button>
+              </div>
+            </div>
+
+
+          </div>
+
+          {step === 2 &&
             <Scanner
               handleScan={this.handleScan}
               handleError={this.handleError}
+              prevStep={this.prevStep.bind(this)}
             />
           }
 
@@ -98,12 +151,6 @@ export default class App extends Component {
             </>
           }
         </div>
-
-
-        <footer>
-          {/* <i className="fas fa-user-secret"></i> */}
-        </footer>
-
       </div>
     )
   }
@@ -188,12 +235,12 @@ export default class App extends Component {
 
   getErrorText(errorName) {
     switch (errorName) {
-        case 'unrecognizedChoice':
-            return 'Не вдалося перевірити твій голос. Перевір, що завантажуєш вірний QR код.'
-        default:
-            return 'Сталася помилка. Спробуй завантажити інше фото.'
+      case 'unrecognizedChoice':
+        return 'Не вдалося перевірити твій голос. Перевір, що завантажуєш вірний QR код.'
+      default:
+        return 'Сталася помилка. Спробуй завантажити інше фото.'
     }
-}
+  }
 
   encryptOption = async (option) => {
     return this.rsaEncrypt(option)

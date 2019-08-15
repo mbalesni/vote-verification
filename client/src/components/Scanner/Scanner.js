@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import QrReader from 'react-qr-reader'
-import ErrorMessage from './error-message'
+import ErrorMessage from '../ErrorMessage/ErrorMessage'
+import arrowBackIcon from '../../img/arrow_back.svg'
+import './Scanner.css'
 
 const VER_QR_SEPARATOR = ":"
 
@@ -12,24 +14,15 @@ const initialState = {
 export default class Scanner extends React.Component {
     state = { ...initialState }
 
-    componentDidMount() {
-        const ctx = this
-        // check camera access
-        if (navigator.getUserMedia) {
-            navigator.getUserMedia(
-                {
-                    video: true
-                },
-                (localMediaStream) => { },
-                (err) => {
-                    console.log('The following error occurred when trying to access the camera: ' + err)
-                    ctx.setState({ legacy: true })
-                }
-            )
-        } else {
+    checkCameraAccess() {
+        if (!navigator.getUserMedia) {
             this.setState({ legacy: true })
-            console.log('Sorry, browser does not support camera access')
+            console.log('Browser does not support camera access')
         }
+    }
+
+    componentWillMount() {
+        this.checkCameraAccess()
     }
 
     handleImageLoad = (stuff) => {
@@ -83,33 +76,52 @@ export default class Scanner extends React.Component {
     render() {
         const { legacy, error } = this.state
 
+        const { prevStep } = this.props
+
         const instructionMessage = legacy ? 'Завантаж фото перевірочного QR коду.' : 'Піднеси QR код з відривної частини свого бюлетеня.'
 
-        let scannerClasses = legacy ? 'scanner legacy' : 'scanner'
+        let scannerWrapperClasses = legacy ? 'scanner-wrapper legacy' : 'scanner-wrapper'
 
         let errorText = this.getErrorText(error)
 
         return (
-            <div className="scanner-wrapper">
-                <p className="instructions">{instructionMessage}</p>
+            <div className="scanner-screen">
+                <div className="scanner-header weight-semi-bold">
+                    Відскануй QR на бюлетні
+                </div>
                 {error && <ErrorMessage message={errorText} />}
-                <div className={scannerClasses}>
-                    <QrReader
-                        onScan={this.handleScan}
-                        onError={this.props.handleError}
-                        showViewFinder={true}
-                        legacyMode={legacy}
-                        onImageLoad={this.handleImageLoad}
-                        ref="qrReader"
-                    />
+                <div className={scannerWrapperClasses}>
+                    <div className="scanner-overlay"></div>
+                    <div className='scanner'>
+                        <QrReader
+                            onScan={this.handleScan}
+                            onError={this.props.handleError}
+                            showViewFinder={true}
+                            legacyMode={legacy}
+                            onImageLoad={this.handleImageLoad}
+                            ref="qrReader"
+                        />
+                    </div>
+                    {legacy &&
+                        <div class="legacy">
+                            <p className="weight-semi-bold color-grey">Сканування не підтримується </p>
+                            <button className="primary" onClick={this.openImageDialog}>
+                                <i className="fas fa-image" style={{ marginRight: '.5rem' }}></i>
+                                Завантажити QR
+                                </button>
+                        </div>
+                    }
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '1rem' }}>
-                    {!legacy && <span style={{ opacity: '0.6', marginRight: '1rem' }}>Або </span>}
-                    <button className="btn-primary" onClick={this.openImageDialog}>
-                        <i className="fas fa-image" style={{ marginRight: '.5rem' }}></i>
-                        Завантажити QR
-                    </button>
+
+                <div className="controls-wrapper">
+                    <div className="controls">
+
+                        <button className="primary low-opacity round" onClick={prevStep} >
+                            <img alt="Стрілка назад" src={arrowBackIcon} />
+                        </button>
+                    </div>
                 </div>
+
 
             </div>
         )
