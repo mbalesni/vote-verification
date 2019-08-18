@@ -1,6 +1,5 @@
 import React from 'react'
 import QrReader from 'react-qr-reader'
-import ErrorMessage from '../ErrorMessage/ErrorMessage'
 import arrowBackIcon from '../../img/arrow_back.svg'
 import './Scanner.css'
 
@@ -40,7 +39,8 @@ export default class Scanner extends React.Component {
         console.log('result', result)
         if (this.state.legacy && !result) {
             // not found QR in loaded image
-            return this.setState({ error: 'qrNotFound' })
+            return alert(this.getErrorText('qrNotFound'))
+            // return this.setState({ error: 'qrNotFound' })
         }
         if (result) {
             const { number, order, salt, error } = this.parseQR(result, VER_QR_SEPARATOR)
@@ -60,7 +60,8 @@ export default class Scanner extends React.Component {
             return { number, order, salt }
         } catch (err) {
             console.warn(err)
-            this.setState({ error: 'invalidQR' })
+            // this.setState({ error: 'invalidQR' })
+            alert(this.getErrorText('invalidQR'))
             return { error: true }
         }
     }
@@ -86,14 +87,13 @@ export default class Scanner extends React.Component {
 
         let scannerWrapperClasses = legacy ? 'scanner-wrapper legacy' : 'scanner-wrapper'
 
-        let errorText = this.getErrorText(error)
 
         return (
             <div className="scanner-screen">
                 <div className="scanner-header weight-semi-bold">
                     Відскануй QR на бюлетні
                 </div>
-                {error && <ErrorMessage message={errorText} />}
+                
                 <div className={scannerWrapperClasses}>
                     <div className="scanner-overlay"></div>
                     <div className='scanner'>
