@@ -84,7 +84,7 @@ h1, h2, h3, h4, h5, h6, p, section {
 .page-content.started .home-content {
   /* transform: translateY(calc(-406px / 3)); */
   height: 140px;
-  /* flex-grow: 1; */
+  flex-grow: 1;
 }
 
 .page-content .gradient-circle {
@@ -111,12 +111,25 @@ h1, h2, h3, h4, h5, h6, p, section {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  max-width: 800px;
   width: 100%;
-  padding: 0 1.5rem 1.5rem;
+}
+
+.qr-instructions {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 2;
+  justify-content: center;
+  padding: 0 1.5rem;
 }
 
 .qr-code-icon {
   margin: 1rem 0;
+}
+
+.controls-wrapper {
+  padding: 1.5rem;
 }
 
 .controls {
@@ -124,6 +137,9 @@ h1, h2, h3, h4, h5, h6, p, section {
   flex-direction: row;
   justify-content: space-between;
   margin-top: 1rem;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 500px;
 }
 
 @media (max-width: 374px) {
@@ -150,5 +166,17 @@ h1, h2, h3, h4, h5, h6, p, section {
 @media (max-height: 600px) {
   .qr-code-icon {
     width: 100px;
+  }
+}
+
+@media (min-width: 768px) {
+  .page-content .gradient-circle {
+    background-image: linear-gradient(135deg, #5DBBC1, 70%, #2C529A)
+  }
+  .page-content.started .home-content .text h2 {
+    font-size: 24px;
+  }
+  .page-content.started .home-content .text p {
+    font-size: 18px;
   }
 }

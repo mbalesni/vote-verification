@@ -25,7 +25,7 @@ function Result({ result }) {
             <div style={{ padding: '1rem'}}>
                 <img className="profile-icon" src={resultIcon} alt="" />
                 <h2 className="result-value color-main">{result.value}</h2>
-                <p className="color-grey">
+                <p className="color-grey" style={{ maxWidth: 350 }}>
                     Якщо результат відрізняється від твого голосу, негайно повідом про це
                     <a className="weight-semi-bold" href="https://t.me/knuvote_bot"> @knuvote_bot</a>
                 </p>

@@ -67,8 +67,8 @@ export default class App extends Component {
 
           <div className="gradient-circle">
             <div className="gradient-circle--container">
-              <div>
-                <p className="size-large weight-medium color-white">
+              <div className="qr-instructions">
+                <p className="size-large weight-medium color-white" style={{ maxWidth: 360, margin: '0 auto' }}>
                   Тобі знадобиться частина бюлетня з минулих виборів з зображенням <strong>QR коду</strong>
                 </p>
                 <img className="qr-code-icon" alt="QR code icon" src={qrCodeIcon} />
@@ -76,13 +76,15 @@ export default class App extends Component {
                   Перевірка голосу є <strong>анонімною</strong>
                 </p>
               </div>
-              <div className="controls">
-                <button className="secondary low-opacity round" onClick={this.prevStep.bind(this)} >
-                  <img alt="Стрілка назад" src={arrowBackIcon} />
+              <div className="controls-wrapper">
+                <div className="controls">
+                  <button className="secondary low-opacity round" onClick={this.prevStep.bind(this)} >
+                    <img alt="Стрілка назад" src={arrowBackIcon} />
+                  </button>
+                  <button className="secondary" onClick={this.nextStep.bind(this)}>
+                    Почати
                 </button>
-                <button className="secondary" onClick={this.nextStep.bind(this)}>
-                  Почати
-                </button>
+                </div>
               </div>
             </div>
 
