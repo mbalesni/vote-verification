@@ -71,6 +71,10 @@
     display: none;
 }
 
+.scanner > section > section {
+    padding-top: 0 !important;
+}
+
 .legacy {
     align-items: center;
     display: flex;
@@ -86,4 +90,12 @@
 
 .scanner-screen .controls {
     margin-top: 0;
+}
+
+@media (min-width: 768px) {
+    .scanner video {
+        left: 50% !important;
+        transform: translateX(-50%);
+        width: auto !important;
+    }
 }

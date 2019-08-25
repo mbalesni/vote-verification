@@ -8,7 +8,6 @@ import Verificator from './verificator';
 
 import './App.css'
 import './theme.css'
-import './screens/Home.css'
 
 function stepClassFromInt(int) {
   switch (int) {
