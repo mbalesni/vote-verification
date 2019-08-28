@@ -24,9 +24,14 @@
     margin-bottom: 1rem;
   }
 
-  .profile-icon {
+  .avatar {
+    background-image: url("../../img/female-profile.svg");
+    background-size: contain;
+    border-radius: 50%;
     width: 175px;
     height: 175px;
+    min-width: 175px;
+    min-height: 175px;
   }
 
   .result-value {
@@ -38,9 +43,11 @@
       margin-bottom: 0.5rem;
     }
 
-    .profile-icon {
+    .avatar {
       width: 125px;
       height: 125px;
+      min-width: 125px;
+      min-height: 125px;
     }
 
     .gradient-circle-2 {

@@ -1,65 +1,28 @@
-const express = require('express')
-const path = require('path')
-const fs = require('fs')
-const https = require('https')
+const axios = require('axios')
+const chalk = require('chalk')
+const Server = require('./server/server.js')
 
-const ballots = require('./votes.json')
-const candidates = require('./candidates.json')
+const { VOTES, CANDIDATES } = require('./elections/dev/urls')
 
-const env = process.env.NODE_ENV || 'development'
-const PROD = env === 'production'
+/**
+ * Verification server entrypoint. Fetches ballots and 
+ * candidates, and starts the server.
+ */
+async function init() {
+  try {
+    const ballotsRes    = await axios.get(VOTES)
+    const candidatesRes = await axios.get(CANDIDATES)
 
-// Create the server
-const app = express()
+    const ballots = ballotsRes.data
+    const candidates = candidatesRes.data
+    
+    // console.log(chalk.green(`Successfully fetched ${Object.keys(ballots).length} votes`) + ` from ${VOTES}`)
+    // console.log(chalk.green(`Successfully fetched ${Object.keys(candidates).length} candidates` + ` from ${CANDIDATES}`))
 
-const forceSsl = (req, res, next) => {
-  if (req.headers['x-forwarded-proto'] !== 'https') {
-    return res.redirect(['https://', req.get('Host'), req.url].join(''))
+    new Server(ballots, candidates)
+  } catch (err) {
+    console.log('Error initializing app: ', err)
   }
-  return next()
 }
 
-if (PROD) app.use(forceSsl);
-
-// Serve static files from the React frontend app
-app.use(express.static(path.join(__dirname, 'client/build')))
-
-app.get('/get_ballot/:number', async (req, res, next) => {
-  try {
-    const number = req.params.number
-    if (ballots[number]) {
-      res.json({ ballot: ballots[number] })
-    } else {
-      res.json({
-        error: "Ballot number not found."
-      })
-    }
-
-  } catch (err) {
-    next(err)
-  }
-})
-
-app.get('/get_candidates', async (req, res, next) => {
-  try {
-    res.json(candidates)
-  } catch (err) {
-    next(err)
-  }
-})
-
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname + '/client/build/index.html'))
-})
-
-// Choose the port and start the server
-const PORT = process.env.PORT || 5000
-
-const server = PROD ? app : https.createServer({
-  key: fs.readFileSync(path.resolve('server.key')),
-  cert: fs.readFileSync(path.resolve('server.crt'))
-}, app)
-
-server.listen(PORT, () => {
-  console.log(`Mixing it up on port ${PORT}`)
-})
+init()

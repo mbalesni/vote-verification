@@ -102,6 +102,7 @@ class Verificator {
       result.type = 'candidate'
       result.value = this.candidates[choiceValue].name
       result.gender = this.candidates[choiceValue].gender
+      result.avatarUrl = this.candidates[choiceValue].avatarUrl
     } else if (STATUSES[choiceValue]) {
       result.type = 'status'
       result.value = STATUSES[choiceValue]
