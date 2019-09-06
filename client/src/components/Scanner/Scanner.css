@@ -92,6 +92,12 @@
     margin-top: 0;
 }
 
+@media (max-height: 500px) {
+    .scanner-overlay {
+        background-size: 60%;
+    }
+}
+
 @media (min-width: 768px) {
     .scanner video {
         left: 50% !important;
