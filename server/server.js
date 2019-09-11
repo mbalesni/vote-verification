@@ -55,8 +55,9 @@ class Server {
                 if (this.ballots[number]) {
                     res.json({ ballot: this.ballots[number] })
                 } else {
-                    res.json({
+                    res.status(404).json({
                         error: "Ballot number not found."
+
                     })
                 }
 
