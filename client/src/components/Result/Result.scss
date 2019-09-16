@@ -25,8 +25,6 @@
   }
 
   .avatar {
-    background-image: url("../../img/female-profile.svg");
-    background-size: contain;
     border-radius: 50%;
     width: 175px;
     height: 175px;
@@ -34,16 +32,34 @@
     min-height: 175px;
   }
 
-  .result-value {
+  .result-text {
     margin-bottom: 1rem;
   }
 
+  .bad-result {
+    background-image: url('../../img/crossed-ballot.svg');
+    background-size: contain;
+    border-radius: 50%;
+    display: inline-block;
+    width: 175px;
+    height: 175px;
+    min-width: 175px;
+    min-height: 175px;
+  }
+
   @media (max-height: 500px) {
-    .result-value {
+    .result-text {
       margin-bottom: 0.5rem;
     }
 
     .avatar {
+      width: 125px;
+      height: 125px;
+      min-width: 125px;
+      min-height: 125px;
+    }
+
+    .bad-result {
       width: 125px;
       height: 125px;
       min-width: 125px;

@@ -115,6 +115,10 @@ export default class App extends Component {
     switch (errorName) {
       case 'unrecognizedChoice':
         return 'Не вдалося перевірити твій голос. Перевір, що завантажуєш вірний QR код.'
+      case 'ballotNotFound':
+        return 'Не вдалося знайти твій бюлетень.'
+      case 'wrongQr':
+        return 'Невірний формат QR коду. Перевір, що завантажуєш вірний QR код.'
       default:
         return 'Сталася помилка. Спробуй завантажити інше фото.'
     }
@@ -128,7 +132,7 @@ export default class App extends Component {
             this.setState({ verificationResult })
             this.nextStep()
           } else {
-            alert(this.getErrorText('unrecognizedChoice'))
+            alert(this.getErrorText(verificationResult.error))
           }
         })
         .finally(() => {

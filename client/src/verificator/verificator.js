@@ -1,8 +1,10 @@
 import { DENVELOPE_SEPARATOR, ENCORDER_SEPARATOR, STATUSES, RSA_NO_PADDING } from './constants'
+import { preloadImages } from '../utils.js'
 import PUBLIC_KEY1 from './public-key1'
 import PUBLIC_KEY2 from './public-key2'
 import axios from 'axios'
 import NodeRSA from 'node-rsa'
+import CONFIG from '../config'
 
 class Verificator {
   constructor() {
@@ -23,6 +25,17 @@ class Verificator {
      */
     this.choiceOptions = []
 
+    /**
+     * @type {array}
+     * @description internal list of preloaded images
+     */
+    this._avatars = []
+
+    /**
+     * @type {number}
+     */
+    this.saltLength = 96
+
     this.init()
   }
 
@@ -30,12 +43,20 @@ class Verificator {
     this.getCandidates()
   }
 
-  bruteforceChoice(realEnvelope, encOrder, choices, key) {
-    let len = choices.length
+  /**
+   * Creates double envelopes for each possible choice 
+   * or ballot status. If finds the one that matches
+   * the real double envelope, returns the guessed choice.
+   * 
+   * @param {string=base64} realEnvelope 
+   * @param {string=base64} encOrder 
+   */
+  guessChoice(realEnvelope, encOrder) {
+    let len = this.choiceOptions.length
     for (let i = 0; i < len; i++) {
-      let choiceGuess = choices[i]
-      let envelopeGuess = this.createDoubleEnvelope(encOrder, choiceGuess, key)
-      if (envelopeGuess === realEnvelope) return choiceGuess
+      let choiceGuess = this.choiceOptions[i]
+      let guessedEnvelope = this.createDoubleEnvelope(encOrder, choiceGuess)
+      if (guessedEnvelope === realEnvelope) return choiceGuess
     }
   }
 
@@ -45,7 +66,6 @@ class Verificator {
       let response = await axios.get('/get_ballot/' + number)
       ballot = response.data.ballot
     } catch (err) {
-      alert('Error retrieving ballot')
       console.warn(err)
     }
     return ballot
@@ -55,15 +75,25 @@ class Verificator {
     try {
       const res = await axios.get('/get_candidates')
       this.candidates = res.data
-      this.choiceOptions = [...Object.keys(STATUSES), ...Object.keys(this.candidates)]
-    } catch(err) {
-      alert('Error retrieving candidates')
+      this.choiceOptions = [...Object.keys(this.candidates), ...Object.keys(STATUSES),]
+      if (CONFIG.useAvatars) this.preloadAvatars(res.data)
+    } catch (err) {
+      alert('Помилка завантаження кандидатів')
       console.warn(err)
     }
   }
 
-  createDoubleEnvelope(encOrder, choice, key) {
-    return this.rsaEncrypt(btoa(choice) + DENVELOPE_SEPARATOR + encOrder, key)
+  preloadAvatars(candidates) {
+    const candidateObjects = Object.keys(candidates)
+    const urls = candidateObjects.map(candidate => candidates[candidate].avatarUrl)
+    preloadImages(this._avatars, urls)
+  }
+
+  createDoubleEnvelope(encOrder, choice) {
+    return this.rsaEncrypt(
+      btoa(choice) + DENVELOPE_SEPARATOR + encOrder,
+      PUBLIC_KEY2
+    )
   }
 
   rsaEncrypt(data, key, encoding = 'base64') {
@@ -81,36 +111,82 @@ class Verificator {
     return k.encrypt(data, encoding)
   }
 
-  verify = async (ballotNum, order, salt) => {
-    const doubleEnvelope = await this.getBallot(ballotNum)
+  verify = async (ballotNum, orderB64, saltB64) => {
+    const realDoubleEnvelope = await this.getBallot(ballotNum)
+    const order = this.decodeB64(orderB64)
+    const salt = this.decodeB64(saltB64)
+    if (realDoubleEnvelope && this.isValidOrder(order) && this.isValidSalt(salt)) {
+      const encryptedOrder = this.createEncryptedOrder(order, salt)
+      const choice = this.guessChoice(realDoubleEnvelope, encryptedOrder)
+      return this.getResultFromChoice(choice, order)
+    } else {
+      let error = ''
+      if (!realDoubleEnvelope) error = 'ballotNotFound'
+      if (!this.isValidOrder(order) || !this.isValidSalt(salt)) error = 'wrongQr'
+      return { error }
+    }
+  }
 
-    const encryptedOrder = this.rsaEncrypt(
-      order + ENCORDER_SEPARATOR + salt,
-      PUBLIC_KEY1,
-    )
-
-    const choiceValue = this.bruteforceChoice(
-      doubleEnvelope,
-      encryptedOrder,
-      this.choiceOptions,
-      PUBLIC_KEY2
-    )
-
-    let result = {}
-
-    if (this.candidates[choiceValue]) {
+  getResultFromChoice(choice, order) {
+    const result = {}
+    if (this.candidates[choice]) {
+      const orderArr = JSON.parse(order)
+      const realCandidateNumber = orderArr[choice - 1]
+      const candidate = this.candidates[realCandidateNumber]
       result.type = 'candidate'
-      result.value = this.candidates[choiceValue].name
-      result.gender = this.candidates[choiceValue].gender
-      result.avatarUrl = this.candidates[choiceValue].avatarUrl
-    } else if (STATUSES[choiceValue]) {
+      result.text = candidate.name
+      result.gender = candidate.gender
+      result.avatarUrl = candidate.avatarUrl
+    } else if (STATUSES[choice]) {
       result.type = 'status'
-      result.value = STATUSES[choiceValue]
+      result.text = STATUSES[choice].displayValue
+      result.value = STATUSES[choice].value
     } else {
       result.error = 'unrecognizedChoice'
     }
-
     return result
+  }
+
+  isValidOrder(order) {
+    if (!order) return false
+    try {
+      const numberOfCandidates = Object.keys(this.candidates).length
+      const orderArr = JSON.parse(order)
+      if (orderArr.length === numberOfCandidates) return true
+    } catch(err) {
+      console.warn(err.message)
+    }
+    return false
+  }
+
+  isValidSalt(salt) {
+    if (!salt) return false
+    if (salt.length === this.saltLength) return true
+    return false
+  }
+
+  /**
+   * 
+   * @param {plaintext=utf8} order
+   * @param {plaintext=utf8} salt
+   */
+  createEncryptedOrder(order, salt) {
+    return this.rsaEncrypt(
+      order + ENCORDER_SEPARATOR + salt,
+      PUBLIC_KEY1,
+    )
+  }
+
+  /**
+   * Decodes base64-encoded string and handles errors.
+   * @param {string=base64} stringB64 
+   */
+  decodeB64(stringB64) {
+    try {
+      return atob(stringB64)
+    } catch (err) {
+      console.error(err)
+    }
   }
 
 }

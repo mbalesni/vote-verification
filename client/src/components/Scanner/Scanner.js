@@ -55,8 +55,8 @@ export default class Scanner extends React.Component {
         try {
             const dataArr = content.split(separator)
             const number = dataArr[0]
-            const order = atob(dataArr[1])
-            const salt = atob(dataArr[2])
+            const order = dataArr[1]
+            const salt = dataArr[2]
             return { number, order, salt }
         } catch (err) {
             console.warn(err)

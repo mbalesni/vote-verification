@@ -10,11 +10,11 @@ const STATUSES = {
         value: "unscanned"
     },
     "-1": {
-        displayValue: "Відкликаний",
+        displayValue: "Замінено на новий",
         value: "revoked"
     },
     "0": {
-        displayValue: "Зіпсований",
+        displayValue: "Зіпсовано",
         value: "spoilt"
     }
 }
