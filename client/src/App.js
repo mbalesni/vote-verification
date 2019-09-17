@@ -61,7 +61,7 @@ export default class App extends Component {
             <img alt="Verified Icon" src={verifiedIcon} />
             <div className="text">
               <h2 className="color-main">Перевір свій голос</h2>
-              <p className="color-darkgrey">на минулих універських виборах</p>
+              <p className="color-darkgrey">на виборах на Big Meeting</p>
             </div>
             <button id="start" className="btn-large" onClick={this.start.bind(this)}>Перевірити</button>
           </div>
