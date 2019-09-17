@@ -36,11 +36,9 @@ export default class Scanner extends React.Component {
 
     handleScan = (result) => {
         if (this.state.haveResult) return
-        console.log('result', result)
         if (this.state.legacy && !result) {
             // not found QR in loaded image
             return alert(this.getErrorText('qrNotFound'))
-            // return this.setState({ error: 'qrNotFound' })
         }
         if (result) {
             const { number, order, salt, error } = this.parseQR(result, VER_QR_SEPARATOR)
@@ -60,7 +58,6 @@ export default class Scanner extends React.Component {
             return { number, order, salt }
         } catch (err) {
             console.warn(err)
-            // this.setState({ error: 'invalidQR' })
             alert(this.getErrorText('invalidQR'))
             return { error: true }
         }
@@ -79,22 +76,18 @@ export default class Scanner extends React.Component {
 
 
     render() {
-        const { legacy, error } = this.state
-
+        const { legacy } = this.state
         const { prevStep } = this.props
-
-        const instructionMessage = legacy ? 'Завантаж фото перевірочного QR коду.' : 'Піднеси QR код з відривної частини свого бюлетеня.'
-
-        let scannerWrapperClasses = legacy ? 'scanner-wrapper legacy' : 'scanner-wrapper'
-
+        const scannerWrapperClasses = ['scanner-wrapper']
+        if (legacy) scannerWrapperClasses.push('legacy')
 
         return (
             <div className="scanner-screen">
                 <div className="scanner-header weight-semi-bold">
                     Відскануй QR на бюлетні
                 </div>
-                
-                <div className={scannerWrapperClasses}>
+
+                <div className={scannerWrapperClasses.join(' ')}>
                     <div className="scanner-overlay"></div>
                     <div className='scanner'>
                         <QrReader
@@ -107,8 +100,8 @@ export default class Scanner extends React.Component {
                         />
                     </div>
                     {legacy &&
-                        <div class="legacy">
-                            <p className="weight-semi-bold color-grey">Сканування не підтримується </p>
+                        <div className="legacy">
+                            <p className="weight-semi-bold color-grey">Відео не підтримується </p>
                             <button className="primary" onClick={this.openImageDialog}>
                                 <i className="fas fa-image" style={{ marginRight: '.5rem' }}></i>
                                 Завантажити QR
@@ -126,9 +119,7 @@ export default class Scanner extends React.Component {
                     </div>
                 </div>
 
-
             </div>
         )
     }
-
 }

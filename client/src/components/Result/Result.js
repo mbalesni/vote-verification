@@ -16,12 +16,11 @@ function Result({ result }) {
                 {isCandidate && useAvatars && 
                     <img className="avatar" src={result.avatarUrl} alt="" />
                 }
-
                 {!isCandidate && <div className="bad-result"></div>}
                 <h2 className="result-text color-main">{result.text}</h2>
                 <p className="color-grey" style={{ maxWidth: 350 }}>
                     Якщо результат перевірки відрізняється від твого голосу, негайно повідом про це
-                    <a className="weight-semi-bold" target="_blank" href="https://t.me/knuvote_bot"> @knuvote_bot</a>
+                    <a href="https://t.me/GoVoteHelpBot" className="weight-semi-bold" target="_blank" rel="noopener noreferrer"> @GoVoteHelpBot</a>
                 </p>
             </div>
         </div>

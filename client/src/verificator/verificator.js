@@ -6,6 +6,8 @@ import axios from 'axios'
 import NodeRSA from 'node-rsa'
 import CONFIG from '../config'
 
+const SALT_LENGTH = 96
+
 class Verificator {
   constructor() {
 
@@ -30,11 +32,6 @@ class Verificator {
      * @description internal list of preloaded images
      */
     this._avatars = []
-
-    /**
-     * @type {number}
-     */
-    this.saltLength = 96
 
     this.init()
   }
@@ -161,7 +158,7 @@ class Verificator {
 
   isValidSalt(salt) {
     if (!salt) return false
-    if (salt.length === this.saltLength) return true
+    if (salt.length === SALT_LENGTH) return true
     return false
   }
 
@@ -188,8 +185,6 @@ class Verificator {
       console.error(err)
     }
   }
-
 }
-
 
 export default Verificator

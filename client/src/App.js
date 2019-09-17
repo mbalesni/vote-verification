@@ -6,13 +6,13 @@ import Scanner from './components/Scanner/Scanner'
 import Result from './components/Result/Result'
 import Verificator from './verificator';
 
-import './App.css'
+import './App.scss'
 import './theme.css'
 
 function stepClassFromInt(int) {
   switch (int) {
     case 0:
-      return ''
+      return 'home'
     case 1:
       return 'started'
     case 2:
@@ -51,6 +51,8 @@ export default class App extends Component {
 
     const stepClass = stepClassFromInt(step)
 
+    console.log(step)
+
     return (
       <div className="App">
         <div className={'page-content ' + stepClass}>
@@ -86,8 +88,6 @@ export default class App extends Component {
                 </div>
               </div>
             </div>
-
-
           </div>
 
           {step === 2 &&
@@ -101,7 +101,13 @@ export default class App extends Component {
           {step === 3 && verificationResult &&
             <Result result={verificationResult} />
           }
-
+          
+          <a
+              href="https://t.me/GoVoteHelpBot"
+              className="footer-link weight-semi-bold color-main"
+              target="_blank"
+              rel="noopener noreferrer"
+            >@GoVoteHelpBot</a>
         </div>
       </div>
     )
