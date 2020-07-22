@@ -1,2 +1,2 @@
-# Paperday Verification App 
+# QR Paper Ballot Election – Verification App 
 
