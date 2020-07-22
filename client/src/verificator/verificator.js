@@ -2,9 +2,8 @@ import { DENVELOPE_SEPARATOR, ENCORDER_SEPARATOR, STATUSES, RSA_NO_PADDING } fro
 import { preloadImages } from '../utils.js'
 import PUBLIC_KEY1 from './public-key1'
 import PUBLIC_KEY2 from './public-key2'
-import axios from 'axios'
 import NodeRSA from 'node-rsa'
-import CONFIG from '../config'
+import CONFIG, { API }  from '../config'
 
 const SALT_LENGTH = 96
 
@@ -60,7 +59,7 @@ class Verificator {
   async getBallot(number) {
     let ballot
     try {
-      let response = await axios.get('/get_ballot/' + number)
+      let response = await API.get('/get_ballot/' + number)
       ballot = response.data.ballot
     } catch (err) {
       console.warn(err)
@@ -70,7 +69,7 @@ class Verificator {
 
   async getCandidates() {
     try {
-      const res = await axios.get('/get_candidates')
+      const res = await API.get('/get_candidates')
       this.candidates = res.data
       this.choiceOptions = [...Object.keys(this.candidates), ...Object.keys(STATUSES),]
       if (CONFIG.useAvatars) this.preloadAvatars(res.data)
